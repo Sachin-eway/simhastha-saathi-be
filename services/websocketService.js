@@ -12,7 +12,7 @@ class WebSocketService {
   }
 
   // Handle new Socket.IO connection
-  handleConnection(socket) {
+  async handleConnection(socket) {
     const token = socket.handshake.query.token;
 
     if (!token) {
