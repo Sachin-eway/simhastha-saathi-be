@@ -244,7 +244,7 @@ class AuthController {
   //create group
   static async createGroup(req, res) {
     try {
-      const groupId = await Group.create();
+      const groupId = await Group.create(req.body.adminId);
       return res.json({ success: true, message: 'Group created successfully', data: { groupId } });
     } catch (error) {
       return res.status(500).json({ success: false, message: 'Group creation failed', error: error.message });

@@ -54,6 +54,7 @@ async function initializeDatabase() {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS groups (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        admin_id INT NOT NULL,
         group_id VARCHAR(10) UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )

@@ -1,7 +1,7 @@
 const db = require('../config/database');
 
 class Group {
-  static async create() {
+  static async create(adminId) {
     console.log("create group");
     try {
   // Get next auto_increment value
@@ -13,8 +13,9 @@ class Group {
       const nextId = rows[0].AUTO_INCREMENT;
 
       const [result] = await db.execute(
-        'INSERT INTO groups (group_id, created_at) VALUES (?, NOW())',
-        [`GR${String(nextId).padStart(4, '0')}`]
+        'INSERT INTO groups (group_id, created_at, admin_id) VALUES (?, NOW(), ?)',
+        [`GR${String(nextId).padStart(4, '0')}`],
+        [adminId]
       );
 
       return `GR${String(nextId).padStart(4, '0')}`;
