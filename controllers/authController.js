@@ -219,12 +219,22 @@ class AuthController {
       } else {
         await Member.markVerified(userId);
       }
-      user.token = JWTService.generateToken(user.id, userType === 'admin');
+      const token = JWTService.generateToken(user.id, userType === 'admin');
        
       return res.json({
         success: true,
         message: 'OTP verified successfully',
-        user
+        data: {
+          token,
+          user:{
+            id: user.id,
+            fullName: user.full_name,
+            mobileNumber: user.mobile_number,
+            age: user.age,
+            groupId: user.group_id,
+            isAdmin: userType === 'admin'
+          }
+        }
       });
     } catch (error) {
       return res.status(500).json({
