@@ -16,14 +16,13 @@ jobs:
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
-          username: jyada-app              # Yaha aapka ssh username
-          key: ${{ secrets.SSH_PRIVATE_KEY }}   # Yeh private key (add in Github secrets)
+          username: jyada-app             
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd /aapka/path/htdocs/api.marklee.ai/Marklee
+            cd /htdocs/app.jyada.in/simhastha-saathi-be
             git pull origin main
-            cd Backend
             npm install
-            pm2 restart marklee-api
+            pm2 restart simhastha-saathi-app
