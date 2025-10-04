@@ -4,23 +4,21 @@ class Group {
   static async create(adminId) {
     console.log("create group");
     try {
-  // Get next auto_increment value
+      // Get next auto_increment value
       const [rows] = await db.execute(`
         SELECT AUTO_INCREMENT 
         FROM information_schema.tables 
         WHERE table_name = 'groups' AND table_schema = DATABASE()
       `);
       const nextId = rows[0].AUTO_INCREMENT;
-
+  
       const [result] = await db.execute(
         'INSERT INTO groups (group_id, created_at, admin_id) VALUES (?, NOW(), ?)',
-        [`GR${String(nextId).padStart(4, '0')}`],
-        [adminId]
+        [`GR${String(nextId).padStart(4, '0')}`, adminId]
       );
-
       return `GR${String(nextId).padStart(4, '0')}`;
     } catch (error) {
-      console.log(error,"error");
+      console.log(error, "error");
       return null;
     }
   }
