@@ -26,7 +26,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/location', require('./routes/locationRoutes'));
 
 // Health check route
-app.get('/health-app', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Simhastha Saathi API is running' });
 });
 
