@@ -14,10 +14,10 @@ class Group {
 
       const [result] = await db.execute(
         'INSERT INTO groups (group_id, created_at) VALUES (?, NOW())',
-        [`GR${String(nextId).padStart(5, '0')}`]
+        [`GR${String(nextId).padStart(4, '0')}`]
       );
 
-      return `GR${String(nextId).padStart(5, '0')}`;
+      return `GR${String(nextId).padStart(4, '0')}`;
     } catch (error) {
       console.log(error,"error");
       return null;
