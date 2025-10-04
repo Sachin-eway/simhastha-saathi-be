@@ -219,10 +219,12 @@ class AuthController {
       } else {
         await Member.markVerified(userId);
       }
-
+      user.token = JWTService.generateToken(user.id, userType === 'admin');
+       
       return res.json({
         success: true,
-        message: 'OTP verified successfully'
+        message: 'OTP verified successfully',
+        user
       });
     } catch (error) {
       return res.status(500).json({
