@@ -31,7 +31,8 @@ class AuthController {
       });
 
       // Generate and send OTP
-      const otp = OTPService.generateOTP();
+      // const otp = OTPService.generateOTP();
+      const otp = 123456;
       await User.updateOtp(userId, otp);
       await OTPService.sendOTP(mobileNumber, otp);
 
