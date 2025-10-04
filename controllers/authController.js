@@ -35,7 +35,7 @@ class AuthController {
       return res.json({
         success: true,
         message: 'User registered successfully. OTP sent to mobile number.',
-        data: { userId, groupId }
+        data: { userId }
       });
     } catch (error) {
       return res.status(500).json({
