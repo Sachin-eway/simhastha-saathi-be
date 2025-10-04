@@ -4,6 +4,9 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 require('dotenv').config();
 
+// Import middleware
+const { corsMiddleware, requestLogger, errorHandler } = require('./middleware/auth');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
@@ -20,10 +23,14 @@ const wsService = new WebSocketService(io);
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static('.')); // Serve static files from current directory
+app.use(requestLogger); // Request logging
+app.use(corsMiddleware); // CORS middleware
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/location', require('./routes/locationRoutes'));
+app.use('/api/qr', require('./routes/qrRoutes'));
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -78,6 +85,29 @@ async function initializeDatabase() {
       )
     `);
 
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS qr_codes (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        member_id INT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_member_id (member_id),
+        INDEX idx_created_at (created_at),
+        INDEX idx_member_created (member_id, created_at)
+      ) ENGINE=InnoDB
+    `);
+
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS qr_users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id INT NOT NULL,
+        full_name VARCHAR(255) NOT NULL,
+        age INT NOT NULL,
+        emergency_contact VARCHAR(15) NOT NULL,
+        address VARCHAR(255) default NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (group_id) REFERENCES groups(id)
+      )
+    `);
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Database initialization failed:', error);
@@ -98,5 +128,8 @@ const start = async () => {
     process.exit(1);
   }
 };
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 start();

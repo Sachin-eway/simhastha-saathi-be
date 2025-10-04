@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .connect-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .connect-btn:hover {
+            background-color: #218838;
+        }
+        .disconnect-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .disconnect-btn:hover {
+            background-color: #c82333;
+        }
+        .action-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .action-btn:hover {
+            background-color: #0056b3;
+        }
+        .location-input {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: center;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 120px;
+        }
+        .log-container {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .log-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .log-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .log-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .log-location {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .clear-btn {
+            background-color: #6c757d;
+            color: white;
+            margin-top: 10px;
+        }
+        .clear-btn:hover {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 WebSocket Test Interface</h1>
+        
+        <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection">
+            <h3>🔐 Login Required</h3>
+            <div style="display: flex; gap: 10px; margin: 10px 0;">
+                <input type="text" id="mobileNumber" placeholder="Mobile Number" style="flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <button id="loginBtn" class="connect-btn">Login</button>
+            </div>
+            <div id="loginStatus" style="margin: 10px 0; padding: 10px; border-radius: 5px; display: none;"></div>
+        </div>
+
+        <div class="button-group" id="connectionSection" style="display: none;">
+            <button id="connectBtn" class="connect-btn">Connect WebSocket</button>
+            <button id="disconnectBtn" class="disconnect-btn" disabled>Disconnect</button>
+        </div>
+
+        <div class="button-group">
+            <button id="sendLocationBtn" class="action-btn" disabled>Send Location Update</button>
+            <button id="getGroupLocationsBtn" class="action-btn" disabled>Get Group Locations</button>
+            <button id="getAllLocationsBtn" class="action-btn" disabled>Get All Group Locations</button>
+        </div>
+
+        <div class="location-input">
+            <label>Latitude:</label>
+            <input type="number" id="latitude" value="22.7196" step="0.0001" placeholder="22.7196">
+            <label>Longitude:</label>
+            <input type="number" id="longitude" value="75.8577" step="0.0001" placeholder="75.8577">
+        </div>
+
+        <div class="button-group">
+            <button id="sendRandomLocationBtn" class="action-btn" disabled>Send Random Location</button>
+            <button id="clearLogBtn" class="clear-btn">Clear Log</button>
+        </div>
+
+        <h3>Event Log:</h3>
+        <div id="logContainer" class="log-container"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        // Configuration
+        const SERVER_URL = 'https://app.jyada.in';
+        
+        let socket = null;
+        let isConnected = false;
+        let authToken = null;
+        let currentUser = null;
+
+        // DOM elements
+        const statusDiv = document.getElementById('status');
+        const loginSection = document.getElementById('loginSection');
+        const connectionSection = document.getElementById('connectionSection');
+        const mobileNumberInput = document.getElementById('mobileNumber');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginStatus = document.getElementById('loginStatus');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const sendLocationBtn = document.getElementById('sendLocationBtn');
+        const getGroupLocationsBtn = document.getElementById('getGroupLocationsBtn');
+        const getAllLocationsBtn = document.getElementById('getAllLocationsBtn');
+        const sendRandomLocationBtn = document.getElementById('sendRandomLocationBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const logContainer = document.getElementById('logContainer');
+        const latitudeInput = document.getElementById('latitude');
+        const longitudeInput = document.getElementById('longitude');
+
+        // Login function
+        async function login() {
+            const mobileNumber = mobileNumberInput.value.trim();
+            
+            if (!mobileNumber) {
+                showLoginStatus('Please enter mobile number', 'error');
+                return;
+            }
+
+            try {
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Logging in...';
+                
+                // Try user login first (admin)
+                let response = await fetch(`${SERVER_URL}/api/auth/login-user`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ mobileNumber })
+                });
+
+                let data = await response.json();
+
+                // If user login fails, try member login
+                if (!data.success) {
+                    response = await fetch(`${SERVER_URL}/api/auth/login-member`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ mobileNumber })
+                    });
+                    data = await response.json();
+                }
+
+                if (data.success) {
+                    authToken = data.data.token;
+                    currentUser = data.data.user || data.data.member;
+                    showLoginStatus(`✅ Login successful! Welcome ${currentUser.fullName}`, 'success');
+                    loginSection.style.display = 'none';
+                    connectionSection.style.display = 'flex';
+                } else {
+                    showLoginStatus(`❌ Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showLoginStatus(`❌ Login error: ${error.message}`, 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+
+        // Show login status
+        function showLoginStatus(message, type) {
+            loginStatus.textContent = message;
+            loginStatus.className = `log-entry log-${type}`;
+            loginStatus.style.display = 'block';
+        }
+
+        // Logging function
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Update connection status
+        function updateStatus(connected) {
+            isConnected = connected;
+            if (connected) {
+                statusDiv.textContent = 'Connected';
+                statusDiv.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                sendLocationBtn.disabled = false;
+                getGroupLocationsBtn.disabled = false;
+                getAllLocationsBtn.disabled = false;
+                sendRandomLocationBtn.disabled = false;
+            } else {
+                statusDiv.textContent = 'Disconnected';
+                statusDiv.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                sendLocationBtn.disabled = true;
+                getGroupLocationsBtn.disabled = true;
+                getAllLocationsBtn.disabled = true;
+                sendRandomLocationBtn.disabled = true;
+            }
+        }
+
+        // Connect to WebSocket
+        function connect() {
+            if (!authToken) {
+                log('❌ Please login first', 'error');
+                return;
+            }
+
+            if (socket) {
+                socket.disconnect();
+            }
+
+            socket = io(SERVER_URL, {
+                query: { token: authToken },
+                transports: ['websocket']
+            });
+
+            // Connection events
+            socket.on('connect', () => {
+                log('✅ Connected successfully!', 'success');
+                updateStatus(true);
+            });
+
+            socket.on('connected', (data) => {
+                log(`📡 Welcome message: ${data.message}`, 'info');
+            });
+
+            socket.on('error', (error) => {
+                log(`❌ Error: ${error.message}`, 'error');
+            });
+
+            socket.on('disconnect', (reason) => {
+                log(`🔌 Disconnected: ${reason}`, 'error');
+                updateStatus(false);
+            });
+
+            // Location events
+            socket.on('location_updated', (data) => {
+                log(`✅ Location update confirmed: ${data.message}`, 'success');
+            });
+
+            socket.on('location_update', (data) => {
+                console.log('📍 Received location update: ', data);
+                log(`📍 Received location update: ${JSON.stringify(data)}`, 'location');
+            });
+
+            socket.on('group_locations', (data) => {
+                log(`👥 Group locations received: ${JSON.stringify(data.data)}`, 'info');
+            });
+
+            socket.on('all_group_locations', (data) => {
+                log(`🌍 All group locations received: ${data.data ? data.data.length : 0} locations`, 'info');
+            });
+        }
+
+        // Disconnect from WebSocket
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            updateStatus(false);
+        }
+
+        // Send location update
+        function sendLocation() {
+            if (!isConnected) return;
+
+            const latitude = parseFloat(latitudeInput.value);
+            const longitude = parseFloat(longitudeInput.value);
+
+            if (isNaN(latitude) || isNaN(longitude)) {
+                log('❌ Please enter valid latitude and longitude', 'error');
+                return;
+            }
+
+            const location = { latitude, longitude };
+            log(`📍 Sending location: ${JSON.stringify(location)}`, 'location');
+            socket.emit('location_update', location);
+        }
+
+        // Send random location
+        function sendRandomLocation() {
+            if (!isConnected) return;
+
+            // Generate random location around Indore
+            const baseLat = 22.7196;
+            const baseLng = 75.8577;
+            const randomLat = baseLat + (Math.random() - 0.5) * 0.01;
+            const randomLng = baseLng + (Math.random() - 0.5) * 0.01;
+
+            const location = { 
+                latitude: parseFloat(randomLat.toFixed(6)), 
+                longitude: parseFloat(randomLng.toFixed(6)) 
+            };
+
+            latitudeInput.value = location.latitude;
+            longitudeInput.value = location.longitude;
+
+            log(`📍 Sending random location: ${JSON.stringify(location)}`, 'location');
+            socket.emit('location_update', location);
+        }
+
+        // Get group locations
+        function getGroupLocations() {
+            if (!isConnected) return;
+            log('👥 Requesting group locations...', 'info');
+            socket.emit('get_group_locations');
+        }
+
+        // Get all group locations
+        function getAllLocations() {
+            if (!isConnected) return;
+            log('🌍 Requesting all group locations...', 'info');
+            socket.emit('request_all_locations');
+        }
+
+        // Clear log
+        function clearLog() {
+            logContainer.innerHTML = '';
+        }
+
+        // Event listeners
+        loginBtn.addEventListener('click', login);
+        mobileNumberInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+        connectBtn.addEventListener('click', connect);
+        disconnectBtn.addEventListener('click', disconnect);
+        sendLocationBtn.addEventListener('click', sendLocation);
+        getGroupLocationsBtn.addEventListener('click', getGroupLocations);
+        getAllLocationsBtn.addEventListener('click', getAllLocations);
+        sendRandomLocationBtn.addEventListener('click', sendRandomLocation);
+        clearLogBtn.addEventListener('click', clearLog);
+
+        // Initialize
+        updateStatus(false);
+        log('🚀 WebSocket Test Interface Ready', 'info');
+        log('Please login first to get a valid token', 'info');
+    </script>
+</body>
+</html>
