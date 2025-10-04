@@ -15,6 +15,8 @@ router.post('/register-user', AuthController.registerUser);
 // Member registration
 router.post('/register-member', AuthController.registerMember);
 
+//create group
+router.post('/create-group', AuthController.createGroup);
 // User login
 router.post('/login-user', AuthController.loginUser);
 

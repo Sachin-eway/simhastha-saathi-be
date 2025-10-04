@@ -54,9 +54,11 @@ async function initializeDatabase() {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS groups (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        group_id VARCHAR(10) UNIQUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    
 
     await db.execute(`
       CREATE TABLE IF NOT EXISTS users (
@@ -64,13 +66,13 @@ async function initializeDatabase() {
         full_name VARCHAR(255),
         mobile_number VARCHAR(15) UNIQUE NOT NULL,
         age INT,
-        group_id INT,
+        group_id VARCHAR(10),
         is_admin BOOLEAN DEFAULT FALSE,
         is_verified BOOLEAN DEFAULT FALSE,
         otp VARCHAR(6),
         otp_expires_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (group_id) REFERENCES groups(id)
+        FOREIGN KEY (group_id) REFERENCES groups(group_id)
       )
     `);
 
@@ -99,13 +101,13 @@ async function initializeDatabase() {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS qr_users (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        group_id INT NOT NULL,
+        group_id VARCHAR(10) NOT NULL,
         full_name VARCHAR(255) NOT NULL,
         age INT NOT NULL,
         emergency_contact VARCHAR(15) NOT NULL,
         address VARCHAR(255) default NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (group_id) REFERENCES groups(id)
+        FOREIGN KEY (group_id) REFERENCES groups(group_id)
       )
     `);
     console.log('Database initialized successfully');

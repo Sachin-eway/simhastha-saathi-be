@@ -19,15 +19,11 @@ class AuthController {
         });
       }
 
-      // Create group first
-      const groupId = await Group.create();
-
       // Create user
       const userId = await User.create({
         fullName,
         mobileNumber,
-        age,
-        groupId
+        age
       });
 
       // Generate and send OTP
@@ -220,13 +216,13 @@ class AuthController {
         await Member.markVerified(userId);
       }
       const token = JWTService.generateToken(user.id, userType === 'admin');
-       
+
       return res.json({
         success: true,
         message: 'OTP verified successfully',
         data: {
           token,
-          user:{
+          user: {
             id: user.id,
             fullName: user.full_name,
             mobileNumber: user.mobile_number,
@@ -242,6 +238,16 @@ class AuthController {
         message: 'OTP verification failed',
         error: error.message
       });
+    }
+  }
+
+  //create group
+  static async createGroup(req, res) {
+    try {
+      const groupId = await Group.create();
+      return res.json({ success: true, message: 'Group created successfully', data: { groupId } });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'Group creation failed', error: error.message });
     }
   }
 }
