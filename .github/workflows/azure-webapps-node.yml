@@ -22,7 +22,7 @@ jobs:
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd /htdocs/app.jyada.in/simhastha-saathi-be
+            cd htdocs/app.jyada.in/simhastha-saathi-be
             git pull origin main
             npm install
             pm2 restart simhastha-saathi-app
