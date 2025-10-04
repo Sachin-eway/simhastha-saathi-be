@@ -1,0 +1,29 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Backend using SSH KEY
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: jyada-app              # Yaha aapka ssh username
+          key: ${{ secrets.SSH_PRIVATE_KEY }}   # Yeh private key (add in Github secrets)
+          port: 22
+          script: |
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            cd /aapka/path/htdocs/api.marklee.ai/Marklee
+            git pull origin main
+            cd Backend
+            npm install
+            pm2 restart marklee-api
