@@ -24,10 +24,10 @@ class Group {
   }
   
 
-  static async findById(id) {
+  static async findByGroupId(groupId) {
     const [rows] = await db.execute(
-      'SELECT * FROM groups WHERE id = ?',
-      [id]
+      'SELECT * FROM groups WHERE group_id = ?',
+      [groupId]
     );
     return rows[0];
   }

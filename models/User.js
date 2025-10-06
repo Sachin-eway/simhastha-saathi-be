@@ -55,6 +55,24 @@ class User {
     );
     return rows;
   }
+
+  static async updateGroup(userId, groupId, isAdmin) {
+    try {
+    await db.execute(
+      'UPDATE users SET group_id = ? , is_admin = ? WHERE id = ?',
+      [groupId, isAdmin, userId]
+    );
+
+    //return the user data
+    const [rows] = await db.execute(
+      'SELECT * FROM users WHERE id = ?',
+      [userId]
+      );
+      return rows[0];
+    } catch (error) {
+      throw new Error(`Failed to update group: ${error.message}`);
+    }
+  }
 }
 
 module.exports = User;

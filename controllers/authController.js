@@ -245,9 +245,30 @@ class AuthController {
   static async createGroup(req, res) {
     try {
       const groupId = await Group.create(req.body.adminId);
-      return res.json({ success: true, message: 'Group created successfully', data: { groupId } });
+      await User.updateGroup(req.body.adminId, groupId, true);
+      const user = await User.findById(req.body.adminId);
+      return res.json({ success: true, message: 'Group created successfully', data: { groupId, user } });
     } catch (error) {
       return res.status(500).json({ success: false, message: 'Group creation failed', error: error.message });
+    }
+  }
+
+  //join existing group
+  static async joinExistingGroup(req, res) {
+    const { groupId, userId } = req.body;
+    try {
+    const group = await Group.findByGroupId(groupId);
+    if (!group) {
+      return res.status(400).json({ success: false, message: 'Group not found' });
+    }
+    const userExisting = await User.findById(userId);
+    if (!userExisting) {
+      return res.status(400).json({ success: false, message: 'User not found' });
+    }
+    const userUpdated = await User.updateGroup(userId, groupId, false);
+      return res.json({ success: true, message: 'User joined group successfully', data: { groupId, user: userUpdated } });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'User joining group failed', error: error.message });
     }
   }
 }
