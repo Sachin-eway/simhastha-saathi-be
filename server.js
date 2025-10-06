@@ -28,7 +28,6 @@ app.use(requestLogger); // Request logging
 app.use(corsMiddleware); // CORS middleware
 
 // Routes
-
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/location', require('./routes/locationRoutes'));
 app.use('/api/qr', require('./routes/qrRoutes'));
