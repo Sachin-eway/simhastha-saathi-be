@@ -47,54 +47,54 @@ class AuthController {
   }
 
   // Member registration
-  static async registerMember(req, res) {
-    try {
-      const { fullName, mobileNumber, age, groupId } = req.body;
+  // static async registerMember(req, res) {
+  //   try {
+  //     const { fullName, mobileNumber, age, groupId } = req.body;
 
-      // Check if group exists
-      const group = await Group.findById(groupId);
-      if (!group) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid group ID'
-        });
-      }
+  //     // Check if group exists
+  //     const group = await Group.findById(groupId);
+  //     if (!group) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: 'Invalid group ID'
+  //       });
+  //     }
 
-      // Check if member already exists
-      const existingMember = await Member.findByMobile(mobileNumber);
-      if (existingMember) {
-        return res.status(400).json({
-          success: false,
-          message: 'Member already exists with this mobile number'
-        });
-      }
+  //     // Check if member already exists
+  //     const existingMember = await Member.findByMobile(mobileNumber);
+  //     if (existingMember) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: 'Member already exists with this mobile number'
+  //       });
+  //     }
 
-      // Create member
-      const memberId = await Member.create({
-        fullName,
-        mobileNumber,
-        age,
-        groupId
-      });
+  //     // Create member
+  //     const memberId = await Member.create({
+  //       fullName,
+  //       mobileNumber,
+  //       age,
+  //       groupId
+  //     });
 
-      // Generate and send OTP
-      const otp = OTPService.generateOTP();
-      await Member.updateOtp(memberId, otp);
-      await OTPService.sendOTP(mobileNumber, otp);
+  //     // Generate and send OTP
+  //     const otp = OTPService.generateOTP();
+  //     await Member.updateOtp(memberId, otp);
+  //     await OTPService.sendOTP(mobileNumber, otp);
 
-      return res.json({
-        success: true,
-        message: 'Member registered successfully. OTP sent to mobile number.',
-        data: { memberId, groupId }
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Member registration failed',
-        error: error.message
-      });
-    }
-  }
+  //     return res.json({
+  //       success: true,
+  //       message: 'Member registered successfully. OTP sent to mobile number.',
+  //       data: { memberId, groupId }
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: 'Member registration failed',
+  //       error: error.message
+  //     });
+  //   }
+  // }
 
   // User login
   static async loginUser(req, res) {
@@ -117,7 +117,7 @@ class AuthController {
       }
 
       const token = JWTService.generateToken(user.id, true);
-      const groupMembers = await User.getGroupMembers(user.group_id);
+      const groupMembers = await User.getGroupUsers(user.group_id);
 
       return res.json({
         success: true,
@@ -145,50 +145,50 @@ class AuthController {
   }
 
   // Login member
-  static async loginMember(req, res) {
-    try {
-      const { mobileNumber } = req.body;
+  // static async loginMember(req, res) {
+  //   try {
+  //     const { mobileNumber } = req.body;
 
-      const member = await Member.findByMobile(mobileNumber);
-      if (!member) {
-        return res.status(400).json({
-          success: false,
-          message: 'Member not found'
-        });
-      }
+  //     const member = await Member.findByMobile(mobileNumber);
+  //     if (!member) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: 'Member not found'
+  //       });
+  //     }
 
-      if (!member.is_verified) {
-        return res.status(400).json({
-          success: false,
-          message: 'Member not verified. Please verify OTP first.'
-        });
-      }
+  //     if (!member.is_verified) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: 'Member not verified. Please verify OTP first.'
+  //       });
+  //     }
 
-      const token = JWTService.generateToken(member.id, false);
+  //     const token = JWTService.generateToken(member.id, false);
 
-      return res.json({
-        success: true,
-        message: 'Login successful',
-        data: {
-          token,
-          member: {
-            id: member.id,
-            fullName: member.full_name,
-            mobileNumber: member.mobile_number,
-            age: member.age,
-            groupId: member.group_id,
-            isAdmin: false
-          }
-        }
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Login failed',
-        error: error.message
-      });
-    }
-  }
+  //     return res.json({
+  //       success: true,
+  //       message: 'Login successful',
+  //       data: {
+  //         token,
+  //         member: {
+  //           id: member.id,
+  //           fullName: member.full_name,
+  //           mobileNumber: member.mobile_number,
+  //           age: member.age,
+  //           groupId: member.group_id,
+  //           isAdmin: false
+  //         }
+  //       }
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: 'Login failed',
+  //       error: error.message
+  //     });
+  //   }
+  // }
 
   // Verify OTP
   static async verifyOTP(req, res) {

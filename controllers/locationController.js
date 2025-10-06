@@ -40,39 +40,39 @@ class LocationController {
   }
 
   // Get latest location of a user
-  static async getLatestLocation(req, res) {
-    try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
+  // static async getLatestLocation(req, res) {
+  //   try {
+  //     const token = req.headers.authorization?.replace('Bearer ', '');
       
-      if (!token) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token required'
-        });
-      }
+  //     if (!token) {
+  //       return res.status(401).json({
+  //         success: false,
+  //         message: 'Token required'
+  //       });
+  //     }
 
-      const decoded = JWTService.verifyToken(token);
-      if (!decoded) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid token'
-        });
-      }
+  //     const decoded = JWTService.verifyToken(token);
+  //     if (!decoded) {
+  //       return res.status(401).json({
+  //         success: false,
+  //         message: 'Invalid token'
+  //       });
+  //     }
 
-      const location = await Location.getLatestLocation(decoded.userId);
+  //     const location = await Location.getLatestLocation(decoded.userId);
 
-      return res.json({
-        success: true,
-        data: location
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to get location',
-        error: error.message
-      });
-    }
-  }
+  //     return res.json({
+  //       success: true,
+  //       data: location
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: 'Failed to get location',
+  //       error: error.message
+  //     });
+  //   }
+  // }
 
   // Get group locations (for admin)
   static async getGroupLocations(req, res) {

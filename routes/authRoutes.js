@@ -10,7 +10,7 @@ router.use(corsMiddleware);
 router.post('/register-user', AuthController.registerUser);
 
 // Member registration
-router.post('/register-member', AuthController.registerMember);
+// router.post('/register-member', AuthController.registerMember);
 
 //create group
 router.post('/create-group', AuthController.createGroup);
@@ -22,7 +22,7 @@ router.post('/join-existing-group', AuthController.joinExistingGroup);
 router.post('/login-user', AuthController.loginUser);
 
 // Member login
-router.post('/login-member', AuthController.loginMember);
+// router.post('/login-member', AuthController.loginMember);
 
 // OTP verification
 router.post('/verify-otp', AuthController.verifyOTP);
