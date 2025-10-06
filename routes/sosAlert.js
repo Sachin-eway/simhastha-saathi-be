@@ -4,7 +4,7 @@ const SosAlertController = require('../controllers/sosAlertController');
 const { authenticateToken, corsMiddleware } = require('../middleware/auth');
 
 // Apply CORS middleware to all auth routes
-router.use(corsMiddleware);
+sosAlertRoutes.use(corsMiddleware);
 
 // Generate new QR code (admin only)
 sosAlertRoutes.post('/send-alert', authenticateToken, SosAlertController.sendAlert);
