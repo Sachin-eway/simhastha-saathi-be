@@ -31,6 +31,7 @@ app.use(corsMiddleware); // CORS middleware
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/location', require('./routes/locationRoutes'));
 app.use('/api/qr', require('./routes/qrRoutes'));
+app.use('/api/sos', require('./routes/sosAlert'));
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -109,6 +110,17 @@ async function initializeDatabase() {
         address VARCHAR(255) default NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (group_id) REFERENCES groups(group_id)
+      )
+    `);
+
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS alerts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        group_id VARCHAR(10) NOT NULL,
+        alert_type VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
     console.log('Database initialized successfully');
