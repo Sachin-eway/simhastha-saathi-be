@@ -6,7 +6,8 @@ module.exports = {
     description: 'API documentation for Simhastha Saathi backend'
   },
   servers: [
-    { url: "https://app.jyada.in", description: 'Local' }
+    { url: "https://app.jyada.in", description: 'server' },
+    { url: "http://localhost:3000", description: 'Local' }
   ],
   components: {
     securitySchemes: {
