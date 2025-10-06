@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 require('dotenv').config();
 
 // Import middleware
@@ -26,11 +28,13 @@ app.use(express.json());
 app.use(express.static('.')); // Serve static files from current directory
 app.use(requestLogger); // Request logging
 app.use(corsMiddleware); // CORS middleware
+app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/location', require('./routes/locationRoutes'));
 app.use('/api/qr', require('./routes/qrRoutes'));
+app.use('/api/sosAlert', require('./routes/sosAlertRoutes'));
 
 // Health check route
 app.get('/health', (req, res) => {
@@ -109,6 +113,18 @@ async function initializeDatabase() {
         address VARCHAR(255) default NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (group_id) REFERENCES groups(group_id)
+      )
+    `);
+
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS sos_alerts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        group_id VARCHAR(10) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (group_id) REFERENCES groups(group_id),
+        INDEX idx_group_created (group_id, created_at)
       )
     `);
     console.log('Database initialized successfully');
