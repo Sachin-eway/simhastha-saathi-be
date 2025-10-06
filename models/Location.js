@@ -3,6 +3,7 @@ const db = require('../config/database');
 class Location {
   static async updateLocation(userId, latitude, longitude) {
     // if location already exists for the user, update it
+    
     try {
       const [rows] = await db.execute(
         'SELECT * FROM locations WHERE user_id = ?',
