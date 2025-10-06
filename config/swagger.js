@@ -6,7 +6,7 @@ module.exports = {
     description: 'API documentation for Simhastha Saathi backend'
   },
   servers: [
-    { url: 'http://localhost:3000', description: 'Local' }
+    { url: window.location.origin, description: 'Local' }
   ],
   components: {
     securitySchemes: {
