@@ -1,3 +1,5 @@
+const env = process.env.BASE_URL || 'http://localhost:3000';
+
 module.exports = {
   openapi: '3.0.0',
   info: {
@@ -6,7 +8,7 @@ module.exports = {
     description: 'API documentation for Simhastha Saathi backend'
   },
   servers: [
-    { url: window.location.origin, description: 'Local' }
+    { url: env, description: 'Local' }
   ],
   components: {
     securitySchemes: {
