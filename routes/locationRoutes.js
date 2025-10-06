@@ -13,6 +13,6 @@ router.post('/update', authenticateToken, LocationController.updateLocation);
 router.get('/latest', authenticateToken, LocationController.getLatestLocation);
 
 // Get group locations (admin only)
-router.get('/group', authenticateToken, requireAdmin, LocationController.getGroupLocations);
+router.post('/group', authenticateToken, LocationController.getGroupLocations);
 
 module.exports = router;

@@ -27,4 +27,7 @@ router.post('/login-member', AuthController.loginMember);
 // OTP verification
 router.post('/verify-otp', AuthController.verifyOTP);
 
+// Get group users
+router.post('/get-group-users', AuthController.getGroupUsers);
+
 module.exports = router;

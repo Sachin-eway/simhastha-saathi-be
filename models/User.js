@@ -73,6 +73,18 @@ class User {
       throw new Error(`Failed to update group: ${error.message}`);
     }
   }
+
+  static async getGroupUsers(groupId) {
+    try {
+    const [rows] = await db.execute(
+      'SELECT * FROM users WHERE group_id = ?',
+      [groupId]
+    );
+    return rows;
+    } catch (error) {
+      throw new Error(`Failed to get group users: ${error.message}`);
+    }
+  }
 }
 
 module.exports = User;

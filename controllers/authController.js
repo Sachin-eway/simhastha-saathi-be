@@ -271,6 +271,13 @@ class AuthController {
       return res.status(500).json({ success: false, message: 'User joining group failed', error: error.message });
     }
   }
+
+  // Get group users
+  static async getGroupUsers(req, res) {
+    const { groupId } = req.body;
+    const users = await User.getGroupUsers(groupId);
+    return res.json({ success: true, message: 'Group users fetched successfully', data: users });
+  }
 }
 
 module.exports = AuthController;
