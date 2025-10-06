@@ -20,8 +20,16 @@ const io = socketIo(server, {
 const WebSocketService = require('./services/websocketService');
 const wsService = new WebSocketService(io);
 
+// always allow cors
 // Middleware
-app.use(cors());
+// allow localhost:3000 and localhost:8080 and localhost:5173
+app.use(cors(
+  {
+    origin: "*",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  }
+));
 app.use(express.json());
 app.use(express.static('.')); // Serve static files from current directory
 app.use(requestLogger); // Request logging
