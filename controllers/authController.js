@@ -216,6 +216,7 @@ class AuthController {
         await Member.markVerified(userId);
       }
       const token = JWTService.generateToken(user.id, userType === 'admin');
+      const groupMembers = await User.getGroupUsers(user.group_id);
 
       return res.json({
         success: true,
@@ -229,7 +230,8 @@ class AuthController {
             age: user.age,
             groupId: user.group_id,
             isAdmin: userType === 'admin'
-          }
+          },
+          groupMembers
         }
       });
     } catch (error) {
