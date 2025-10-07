@@ -5,6 +5,7 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const db = require('./config/database');
+const QR = require('./models/QR')
 require('dotenv').config();
 
 // Import middleware
@@ -22,6 +23,8 @@ const io = socketIo(server, {
 // Import services
 const WebSocketService = require('./services/websocketService');
 const wsService = new WebSocketService(io);
+app.set('view engine', 'ejs');
+app.set('views', './views');
 
 // Middleware
 app.use(cors());
@@ -30,8 +33,6 @@ app.use(express.static('.')); // Serve static files from current directory
 app.use(requestLogger); // Request logging
 app.use(corsMiddleware); // CORS middleware
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.set('view engine', 'ejs'); // or another template engine like pug, handlebars
-app.set('views', './views'); // folder with HTML templates
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -48,30 +49,30 @@ app.get('/member-details/:id', async (req, res) => {
 
   try {
     // Query to fetch qr code and associated user details
-    const [rows] = await db.execute(
-      `SELECT 
-        qr.id, 
-        qr.created_at, 
-        (qr.member_id IS NOT NULL) AS isBound,
-        u.id AS userId, 
-        u.full_name, 
-        u.group_id, 
-        u.age, 
-        u.emergency_contact, 
-        u.address
-      FROM qr_codes qr
-      LEFT JOIN qr_users u ON qr.member_id = u.id
-      WHERE qr.id = ? 
-      LIMIT 1`,
-      [qrId]
-    );
-
-    if (rows.length === 0) {
-      return res.status(404).send('Member not found');
+    const qrData = await QR.getQRWithUser(qrId);
+      
+    if (!qrData) {
+      return res.status(404).json({
+        success: false,
+        message: 'QR code not found'
+      });
     }
 
-    const member = rows[0];
+    if (!qrData.isBound) {
+      return res.json({
+        success: true,
+        message: 'QR code is not bound to any user',
+        data: {
+          qrId: qrData.id,
+          isBound: false,
+          createdAt: qrData.createdAt
+        }
+      });
+    }
 
+
+    const member =  qrData.user;
+console.log("member", member)
     // Render the member-details template passing member data
     res.render('member-details', { member });
   } catch (error) {
