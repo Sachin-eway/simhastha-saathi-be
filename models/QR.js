@@ -64,12 +64,12 @@ static async getQRWithUser(qrId) {
 
   static async bindUser(qrData) {
     try {
-      const { qrId, groupId, fullName, age, emergencyContact } = qrData;
+      const { qrId, groupId, fullName, age, emergencyContact ,address } = qrData;
   
       // Create user first
       const [memberResult] = await db.execute(
-        'INSERT INTO qr_users (group_id, full_name, age, emergency_contact) VALUES (?, ?, ?, ?)', 
-        [groupId, fullName, age, emergencyContact]
+        'INSERT INTO qr_users (group_id, full_name, age, emergency_contact ,address) VALUES (?, ?, ?, ? ,?', 
+        [groupId, fullName, age, emergencyContact,address]
       );
   
       if (!memberResult || !memberResult.insertId) {
