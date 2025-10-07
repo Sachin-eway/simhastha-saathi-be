@@ -19,10 +19,10 @@ static async getQRWithUser(qrId) {
     const [rows] = await db.execute(
       `SELECT 
          qr.id, qr.created_at, 
-         qr.user_id IS NOT NULL AS isBound,
+         qr.member_id IS NOT NULL AS isBound,
          u.id AS userId, u.full_name, u.age, u.emergency_contact
        FROM qr_codes qr
-       LEFT JOIN qr_users u ON qr.user_id = u.id
+       LEFT JOIN qr_users u ON qr.member_id = u.id
        WHERE qr.id = ? LIMIT 1`,
       [qrId]
     );
