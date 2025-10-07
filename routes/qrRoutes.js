@@ -28,10 +28,10 @@ router.get('/my-qrs', authenticateToken, QRController.getUserQRs);
 router.delete('/unbind/:qrId', authenticateToken, requireAdmin, QRController.unbindUser);
 
 // Get QR statistics (admin only)
-router.get('/stats', authenticateToken, requireAdmin, QRController.getQRStats);
+router.get('/stats', QRController.getQRStats);
 
 // Generate bulk QR codes and download as PDF (admin only)
-router.post('/generate-pdf', authenticateToken, QRController.generateBulkQRPDF);
+router.post('/generate-pdf' , QRController.generateBulkQRPDF);
 
 // Generate single QR code as image (public)
 router.get('/image/:qrId', QRController.generateQRImage);
