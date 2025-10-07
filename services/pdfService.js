@@ -64,14 +64,21 @@ class PDFService {
           const row = Math.floor(i / 3);
           const col = i % 3;
         
-          const boxPadding = 10;
-          const boxWidth = qrSize + boxPadding * 2;
-          const boxHeight = qrSize + 70; // extra height for logo
-          const x = margin + (col * qrSpacingX) + (qrSpacingX - boxWidth) / 2;
-          const y = margin + 60 + (row * qrSpacingY) + (qrSpacingY - boxHeight) / 2;
+          // 🔧 Box layout adjustments
+          const boxPadding = 15; // more padding inside the box
+          const qrInnerPadding = 10; // padding around QR inside box
+          const qrSize = 80; // (you can change this if needed)
+          const boxWidth = qrSize + boxPadding * 2 + qrInnerPadding * 2;
+          const boxHeight = qrSize + boxPadding * 2 + qrInnerPadding * 2 + 70; // extra height for logo + text
+        
+          const qrSpacingX = boxWidth + 30; // 🔧 more space between columns
+          const qrSpacingY = boxHeight + 30; // 🔧 more space between rows
+        
+          const x = margin + (col * qrSpacingX);
+          const y = margin + 60 + (row * qrSpacingY);
         
           try {
-            // Generate QR Code
+            // ✅ Generate QR Code
             const qrDataURL = await QRCode.toDataURL(qr.id.toString(), {
               width: qrSize,
               margin: 1,
@@ -80,52 +87,53 @@ class PDFService {
         
             // ✅ Draw rounded box
             doc.roundedRect(x, y, boxWidth, boxHeight, 8)
-               .lineWidth(0.5)
-               .strokeColor('#cccccc')
-               .stroke();
+              .lineWidth(0.5)
+              .strokeColor('#cccccc')
+              .stroke();
         
-            // ✅ Add Hackathon logo (place your image file in same folder)
-            const logoPath = './Hackathon.png'; // <- rename to match your actual logo file
+            // ✅ Add Hackathon logo
+            const logoPath = './Hackathon.png';
             if (require('fs').existsSync(logoPath)) {
-              doc.image(logoPath, x + boxWidth / 2 - 20, y + 5, { width: 40, height: 40 });
+              doc.image(logoPath, x + boxWidth / 2 - 25, y + 8, { width: 50 });
             }
         
-            // ✅ Add QR code below logo
-            const qrY = y + 50; // leave space for logo
-            doc.image(qrDataURL, x + boxPadding, qrY, {
+            // ✅ Add QR code with inner padding
+            const qrY = y + 60; // leave space for logo
+            doc.image(qrDataURL, x + boxPadding + qrInnerPadding, qrY, {
               width: qrSize,
               height: qrSize,
             });
         
             // ✅ Add ID text
             doc.fontSize(8)
-               .font('Helvetica')
-               .fillColor('#000')
-               .text(`ID: ${qr.id}`, x, qrY + qrSize + 5, {
-                 align: 'center',
-                 width: boxWidth,
-               });
+              .font('Helvetica')
+              .fillColor('#000')
+              .text(`ID: ${qr.id}`, x, qrY + qrSize + 8, {
+                align: 'center',
+                width: boxWidth,
+              });
         
             // ✅ Add created date
             doc.fontSize(6)
-               .font('Helvetica')
-               .fillColor('#555')
-               .text(`Created: ${new Date(qr.created_at).toLocaleDateString('en-IN')}`, x, qrY + qrSize + 15, {
-                 align: 'center',
-                 width: boxWidth,
-               });
+              .font('Helvetica')
+              .fillColor('#555')
+              .text(`Created: ${new Date(qr.created_at).toLocaleDateString('en-IN')}`, x, qrY + qrSize + 18, {
+                align: 'center',
+                width: boxWidth,
+              });
         
           } catch (qrError) {
             console.error(`Error generating QR for ID ${qr.id}:`, qrError);
             doc.rect(x, y, boxWidth, boxHeight).stroke();
             doc.fontSize(8)
-               .font('Helvetica')
-               .text(`Error: ${qr.id}`, x, y + boxHeight / 2, {
-                 align: 'center',
-                 width: boxWidth,
-               });
+              .font('Helvetica')
+              .text(`Error: ${qr.id}`, x, y + boxHeight / 2, {
+                align: 'center',
+                width: boxWidth,
+              });
           }
         }
+        
         
         
 
