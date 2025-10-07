@@ -38,8 +38,10 @@ static async getQRWithUser(qrId) {
         ? {
             id: qr.userId,
             fullName: qr.full_name,
+            groupId: qr.group_id,
             age: qr.age,
             emergencyContact: qr.emergency_contact,
+            address:qr.address
           }
         : null,
     };
