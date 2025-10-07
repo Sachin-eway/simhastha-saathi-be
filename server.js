@@ -76,7 +76,7 @@ app.get('/member-details/:id', async (req, res) => {
     res.render('member-details', { member });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Database error');
+    res.status(500).send('Database error', error);
   }
 });
 
