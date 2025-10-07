@@ -48,9 +48,10 @@ class AuthController {
   }
 
  
-  static async registerOfflineUser(req, res) {
+  static async getOfflineUser(req, res) {
     try {
-      const groupId = req.user.groupId;
+      console.log(req.user);
+      const groupId = req.user.group_id;
       const member = await QR.getMemberByGroupId(groupId);
       return res.json({ success: true, message: 'Member fetched successfully', data: member });
     } catch (error) {

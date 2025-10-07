@@ -1,4 +1,5 @@
 const JWTService = require('../utils/jwtService');
+const User = require('../models/User');
 
 /**
  * Authentication middleware to verify JWT token
@@ -6,7 +7,7 @@ const JWTService = require('../utils/jwtService');
  * @param {Object} res - Express response object
  * @param {Function} next - Express next function
  */
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -29,7 +30,7 @@ const authenticateToken = (req, res, next) => {
     }
 
     // Attach user info to request object
-    req.user = decoded;
+    req.user = await User.findById(decoded.userId);
     next();
   } catch (error) {
     return res.status(500).json({

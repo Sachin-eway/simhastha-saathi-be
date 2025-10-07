@@ -159,12 +159,7 @@ module.exports = {
           }
         }
       },
-      RegisterOfflineUserRequest: {
-        type: 'object',
-        required: ['groupId'],
-        properties: { groupId: { type: 'string', example: 'GR0001' } }
-      },
-      RegisterOfflineUserResponse: {
+      GetOfflineUserResponse: {
         type: 'object',
         properties: { success: { type: 'boolean', example: true }, message: { type: 'string', example: 'Member fetched successfully' }, data: { type: 'object', properties: { id: { type: 'integer', example: 201 }, full_name: { type: 'string', example: 'Member Name' }, mobile_number: { type: 'string', example: '9999999999' } } } }
       },
@@ -338,15 +333,15 @@ module.exports = {
         responses: { '200': { description: 'Users', content: { 'application/json': { schema: { $ref: '#/components/schemas/GetGroupUsersResponse' } } } } }
       }
     },
-    '/api/auth/register-offline-user': {
-      post: {
+    '/api/auth/get-offline-user': {
+      get: {
         tags: ['Auth'],
-        summary: 'Register offline user',
+        summary: 'Get offline user',
         security: [{ bearerAuth: [] }],
-        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterOfflineUserRequest' } } } },
-        responses: { '200': { description: 'Registered', content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterOfflineUserResponse' } } } } }
+        responses: { '200': { description: 'Offline user', content: { 'application/json': { schema: { $ref: '#/components/schemas/GetOfflineUserResponse' } } } } }
       }
     },
+
       // Location routes
     '/api/location/update': {
       post: {
