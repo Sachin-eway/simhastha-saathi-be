@@ -127,16 +127,16 @@ class PDFService {
               });
 
             // Add clickable URL text below QR code and text
-            doc
-              .fontSize(6)
-              .font('Helvetica')
-              .fillColor('#0000EE')
-              .text(qrUrl, x + boxPadding, qrY + qrSize + 28, {
-                width: boxWidth - boxPadding * 2,
-                align: 'center',
-                link: qrUrl,
-                underline: true,
-              });
+            // doc
+            //   .fontSize(6)
+            //   .font('Helvetica')
+            //   .fillColor('#0000EE')
+            //   .text(qrUrl, x + boxPadding, qrY + qrSize + 28, {
+            //     width: boxWidth - boxPadding * 2,
+            //     align: 'center',
+            //     link: qrUrl,
+            //     underline: true,
+            //   });
           } catch (qrError) {
             console.error(`Error generating QR for ID ${qr.id}:`, qrError);
             doc.rect(x, y, boxWidth, boxHeight).stroke();
