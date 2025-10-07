@@ -1,5 +1,6 @@
 const QR = require('../models/QR');
 const User = require('../models/User');
+const PDFService = require('../services/pdfService');
 
 class QRController {
   // Generate a new QR code - optimized
@@ -295,6 +296,88 @@ class QRController {
       return res.status(500).json({
         success: false,
         message: 'Failed to get QR statistics',
+        error: error.message
+      });
+    }
+  }
+
+  // Generate bulk QR codes and download as PDF
+  static async generateBulkQRPDF(req, res) {
+    try {
+      const { quantity = 6 } = req.body;
+      
+      // Validate quantity
+      if (quantity < 1 || quantity > 1000) {
+        return res.status(400).json({
+          success: false,
+          message: 'Quantity must be between 1 and 1000'
+        });
+      }
+
+      // Generate QR codes
+      const qrData = await QR.generateBulkQRsForPDF(quantity);
+      
+      if (!qrData || qrData.length === 0) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to generate QR codes'
+        });
+      }
+
+      // Generate and send PDF
+      await PDFService.generateQRPDF(qrData, res);
+
+    } catch (error) {
+      console.error('Bulk QR PDF generation error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate QR PDF',
+        error: error.message
+      });
+    }
+  }
+
+  // Generate single QR code as image
+  static async generateQRImage(req, res) {
+    try {
+      const { qrId } = req.params;
+      const { size = 200 } = req.query;
+
+      // Validate QR ID
+      if (!qrId) {
+        return res.status(400).json({
+          success: false,
+          message: 'QR ID is required'
+        });
+      }
+
+      // Check if QR exists
+      const qr = await QR.findById(qrId);
+      if (!qr) {
+        return res.status(404).json({
+          success: false,
+          message: 'QR code not found'
+        });
+      }
+
+      // Generate QR code as data URL
+      const qrDataURL = await PDFService.generateQRDataURL(qrId, {
+        width: parseInt(size)
+      });
+
+      // Return QR code as image
+      const base64Data = qrDataURL.split(',')[1];
+      const imgBuffer = Buffer.from(base64Data, 'base64');
+
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Content-Disposition', `attachment; filename="qr-${qrId}.png"`);
+      res.send(imgBuffer);
+
+    } catch (error) {
+      console.error('QR image generation error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate QR image',
         error: error.message
       });
     }

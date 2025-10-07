@@ -437,6 +437,61 @@ module.exports = {
         security: [{ bearerAuth: [] }],
         responses: { '200': { description: 'Stats', content: { 'application/json': { schema: { $ref: '#/components/schemas/QRStatsResponse' } } } } }
       }
+    },
+    '/api/qr/generate-pdf': {
+      post: {
+        tags: ['QR'],
+        summary: 'Generate bulk QR codes and download as PDF (admin)',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  quantity: { type: 'integer', minimum: 1, maximum: 1000, default: 6, example: 12 }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'PDF file with QR codes',
+            content: {
+              'application/pdf': {
+                schema: { type: 'string', format: 'binary' }
+              }
+            }
+          },
+          '400': { description: 'Invalid quantity' },
+          '401': { description: 'Unauthorized' },
+          '500': { description: 'Server error' }
+        }
+      }
+    },
+    '/api/qr/image/{qrId}': {
+      get: {
+        tags: ['QR'],
+        summary: 'Generate single QR code as image',
+        parameters: [
+          { name: 'qrId', in: 'path', required: true, schema: { type: 'integer' }, example: 5001 },
+          { name: 'size', in: 'query', schema: { type: 'integer', default: 200 }, example: 300 }
+        ],
+        responses: {
+          '200': {
+            description: 'QR code image',
+            content: {
+              'image/png': {
+                schema: { type: 'string', format: 'binary' }
+              }
+            }
+          },
+          '404': { description: 'QR code not found' },
+          '500': { description: 'Server error' }
+        }
+      }
     }
   }
 };

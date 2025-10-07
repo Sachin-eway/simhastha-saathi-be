@@ -30,4 +30,10 @@ router.delete('/unbind/:qrId', authenticateToken, requireAdmin, QRController.unb
 // Get QR statistics (admin only)
 router.get('/stats', authenticateToken, requireAdmin, QRController.getQRStats);
 
+// Generate bulk QR codes and download as PDF (admin only)
+router.post('/generate-pdf', authenticateToken, QRController.generateBulkQRPDF);
+
+// Generate single QR code as image (public)
+router.get('/image/:qrId', QRController.generateQRImage);
+
 module.exports = router;

@@ -182,6 +182,29 @@ class QR {
     );
     return rows[0];
   }
+
+  // Generate bulk QR codes and return their details for PDF generation
+  static async generateBulkQRsForPDF(count = 6) {
+    try {
+      // Generate QR codes
+      const qrIds = [];
+      for (let i = 0; i < count; i++) {
+        const qrId = await QR.create();
+        qrIds.push(qrId);
+      }
+      
+      // Get all generated QR codes with their details
+      const placeholders = qrIds.map(() => '?').join(',');
+      const [rows] = await db.execute(
+        `SELECT id, created_at FROM qr_codes WHERE id IN (${placeholders}) ORDER BY id`,
+        qrIds
+      );
+      
+      return rows;
+    } catch (error) {
+      throw new Error(`Failed to generate bulk QRs for PDF: ${error.message}`);
+    }
+  }
 }
 
 module.exports = QR;
