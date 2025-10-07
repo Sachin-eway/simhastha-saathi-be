@@ -47,15 +47,24 @@ app.get('/member-details/:id', async (req, res) => {
   const qrId = req.params.id;
 
   try {
-    // Get member details from db by id
-    const [rows] = await db.execute( `SELECT 
-      qr.id, qr.created_at, 
-      qr.member_id IS NOT NULL AS isBound,
-      u.id AS userId, u.full_name, u.group_id, u.age, u.emergency_contact, u.address
+    // Query to fetch qr code and associated user details
+    const [rows] = await db.execute(
+      `SELECT 
+        qr.id, 
+        qr.created_at, 
+        (qr.member_id IS NOT NULL) AS isBound,
+        u.id AS userId, 
+        u.full_name, 
+        u.group_id, 
+        u.age, 
+        u.emergency_contact, 
+        u.address
       FROM qr_codes qr
       LEFT JOIN qr_users u ON qr.member_id = u.id
-      WHERE qr.id = ? LIMIT 1`,
-    [qrId]);
+      WHERE qr.id = ? 
+      LIMIT 1`,
+      [qrId]
+    );
 
     if (rows.length === 0) {
       return res.status(404).send('Member not found');
@@ -63,13 +72,14 @@ app.get('/member-details/:id', async (req, res) => {
 
     const member = rows[0];
 
-    // Render a template with member data
+    // Render the member-details template passing member data
     res.render('member-details', { member });
   } catch (error) {
     console.error(error);
     res.status(500).send('Database error');
   }
 });
+
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
