@@ -44,11 +44,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Simhastha Saathi API is running' });
 });
 app.get('/member-details/:id', async (req, res) => {
-  const memberId = req.params.id;
+  const qrId = req.params.id;
 
   try {
     // Get member details from db by id
-    const [rows] = await db.execute('SELECT * FROM qr_users WHERE id = ?', [memberId]);
+    const [rows] = await db.execute( `SELECT 
+      qr.id, qr.created_at, 
+      qr.member_id IS NOT NULL AS isBound,
+      u.id AS userId, u.full_name, u.group_id, u.age, u.emergency_contact, u.address
+      FROM qr_codes qr
+      LEFT JOIN qr_users u ON qr.member_id = u.id
+      WHERE qr.id = ? LIMIT 1`,
+    [qrId]);
 
     if (rows.length === 0) {
       return res.status(404).send('Member not found');
