@@ -67,12 +67,12 @@ class QR {
 
   static async bindUser(qrData) {
     try {
-      const { qrId, groupId, fullName, age, emergencyContact ,address } = qrData;
+      const { qrId, groupId, fullName, age, emergencyContact, address } = qrData;
   
       // Create user first
       const [memberResult] = await db.execute(
-        'INSERT INTO qr_users (group_id, full_name, age, emergency_contact ,address) VALUES (?, ?, ?, ? ,?', 
-        [groupId, fullName, age, emergencyContact,address]
+        'INSERT INTO qr_users (group_id, full_name, age, emergency_contact, address) VALUES (?, ?, ?, ?, ?)',
+        [groupId, fullName, age, emergencyContact, address]
       );
   
       if (!memberResult || !memberResult.insertId) {
@@ -91,7 +91,6 @@ class QR {
       }
   
       return memberResult.insertId;
-  
     } catch (error) {
       throw new Error(`Failed to bind user to QR: ${error.message}`);
     }
