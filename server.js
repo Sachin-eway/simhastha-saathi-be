@@ -4,7 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
-const db = require('../config/database');
+const db = require('./config/database');
 require('dotenv').config();
 
 // Import middleware
