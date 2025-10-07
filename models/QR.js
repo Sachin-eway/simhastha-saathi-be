@@ -14,42 +14,43 @@ class QR {
   }
 
   // Optimized method: getQRWithUser
-static async getQRWithUser(qrId) {
-  try {
-    const [rows] = await db.execute(
-      `SELECT 
-         qr.id, qr.created_at, 
-         qr.member_id IS NOT NULL AS isBound,
-         u.id AS userId, u.full_name, u.age, u.emergency_contact
-       FROM qr_codes qr
-       LEFT JOIN qr_users u ON qr.member_id = u.id
-       WHERE qr.id = ? LIMIT 1`,
-      [qrId]
-    );
-
-    if (!rows[0]) return null;
-
-    const qr = rows[0];
-    return {
-      id: qr.id,
-      createdAt: qr.created_at,
-      isBound: qr.isBound,
-      user: qr.userId
-        ? {
-            id: qr.userId,
-            fullName: qr.full_name,
-            groupId: qr.group_id,
-            age: qr.age,
-            emergencyContact: qr.emergency_contact,
-            address:qr.address
-          }
-        : null,
-    };
-  } catch (error) {
-    throw new Error(`Failed to get QR with user: ${error.message}`);
+  static async getQRWithUser(qrId) {
+    try {
+      const [rows] = await db.execute(
+        `SELECT 
+           qr.id, qr.created_at, 
+           qr.member_id IS NOT NULL AS isBound,
+           u.id AS userId, u.full_name, u.group_id, u.age, u.emergency_contact, u.address
+         FROM qr_codes qr
+         LEFT JOIN qr_users u ON qr.member_id = u.id
+         WHERE qr.id = ? LIMIT 1`,
+        [qrId]
+      );
+  
+      if (!rows[0]) return null;
+  
+      const qr = rows[0];
+      return {
+        id: qr.id,
+        createdAt: qr.created_at,
+        isBound: qr.isBound,
+        user: qr.userId
+          ? {
+              id: qr.userId,
+              fullName: qr.full_name,
+              groupId: qr.group_id,
+              age: qr.age,
+              emergencyContact: qr.emergency_contact,
+              address: qr.address
+            }
+          : null,
+      };
+    } catch (error) {
+      throw new Error(`Failed to get QR with user: ${error.message}`);
+    }
   }
-}
-
+  
+  
 
   // Get QR code by ID - optimized with primary key lookup
   static async findById(qrId) {
