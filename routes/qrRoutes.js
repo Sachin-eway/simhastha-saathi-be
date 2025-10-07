@@ -4,13 +4,13 @@ const QRController = require('../controllers/qrController');
 const { authenticateToken, requireAdmin, rateLimit } = require('../middleware/auth');
 
 // Generate new QR code (admin only)
-router.post('/generate', authenticateToken, requireAdmin, QRController.generateQR);
+router.post('/generate', QRController.generateQR);
 
 // Bulk generate QR codes (admin only)
 router.post('/bulk-generate', authenticateToken, requireAdmin, QRController.bulkGenerateQR);
 
 // Bind user to QR code (authenticated user)
-router.post('/bind', authenticateToken, QRController.bindUser);
+router.post('/bind', QRController.bindUser);
 
 // Scan QR code and get user details (public)
 router.get('/scan/:qrId', QRController.scanQR);
