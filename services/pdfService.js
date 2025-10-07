@@ -63,55 +63,71 @@ class PDFService {
           const qr = qrsForThisPage[i];
           const row = Math.floor(i / 3);
           const col = i % 3;
-          
-          const x = margin + (col * qrSpacingX) + (qrSpacingX - qrSize) / 2;
-          const y = margin + 60 + (row * qrSpacingY) + (qrSpacingY - qrSize) / 2;
-
+        
+          const boxPadding = 10;
+          const boxWidth = qrSize + boxPadding * 2;
+          const boxHeight = qrSize + 70; // extra height for logo
+          const x = margin + (col * qrSpacingX) + (qrSpacingX - boxWidth) / 2;
+          const y = margin + 60 + (row * qrSpacingY) + (qrSpacingY - boxHeight) / 2;
+        
           try {
-            // Generate QR code as data URL
+            // Generate QR Code
             const qrDataURL = await QRCode.toDataURL(qr.id.toString(), {
               width: qrSize,
               margin: 1,
-              color: {
-                dark: '#000000',
-                light: '#FFFFFF'
-              }
+              color: { dark: '#000000', light: '#FFFFFF' },
             });
-
-            // Add QR code image to PDF
-            doc.image(qrDataURL, x, y, { width: qrSize, height: qrSize });
-
-            // Add QR ID below the QR code
+        
+            // ✅ Draw rounded box
+            doc.roundedRect(x, y, boxWidth, boxHeight, 8)
+               .lineWidth(0.5)
+               .strokeColor('#cccccc')
+               .stroke();
+        
+            // ✅ Add Hackathon logo (place your image file in same folder)
+            const logoPath = './Hackathon.png'; // <- rename to match your actual logo file
+            if (require('fs').existsSync(logoPath)) {
+              doc.image(logoPath, x + boxWidth / 2 - 20, y + 5, { width: 40, height: 40 });
+            }
+        
+            // ✅ Add QR code below logo
+            const qrY = y + 50; // leave space for logo
+            doc.image(qrDataURL, x + boxPadding, qrY, {
+              width: qrSize,
+              height: qrSize,
+            });
+        
+            // ✅ Add ID text
             doc.fontSize(8)
                .font('Helvetica')
-               .text(`ID: ${qr.id}`, x, y + qrSize + 5, {
+               .fillColor('#000')
+               .text(`ID: ${qr.id}`, x, qrY + qrSize + 5, {
                  align: 'center',
-                 width: qrSize
+                 width: boxWidth,
                });
-
-            // Add creation date
+        
+            // ✅ Add created date
             doc.fontSize(6)
                .font('Helvetica')
-               .text(`Created: ${new Date(qr.created_at).toLocaleDateString('en-IN')}`, x, y + qrSize + 15, {
+               .fillColor('#555')
+               .text(`Created: ${new Date(qr.created_at).toLocaleDateString('en-IN')}`, x, qrY + qrSize + 15, {
                  align: 'center',
-                 width: qrSize
+                 width: boxWidth,
                });
-
+        
           } catch (qrError) {
             console.error(`Error generating QR for ID ${qr.id}:`, qrError);
-            
-            // Add placeholder rectangle if QR generation fails
-            doc.rect(x, y, qrSize, qrSize)
-               .stroke();
-            
+            doc.rect(x, y, boxWidth, boxHeight).stroke();
             doc.fontSize(8)
                .font('Helvetica')
-               .text(`Error: ${qr.id}`, x, y + qrSize/2, {
+               .text(`Error: ${qr.id}`, x, y + boxHeight / 2, {
                  align: 'center',
-                 width: qrSize
+                 width: boxWidth,
                });
           }
         }
+        
+        
 
         qrIndex += 6;
         currentPage++;
