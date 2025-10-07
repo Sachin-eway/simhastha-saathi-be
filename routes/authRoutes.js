@@ -9,6 +9,8 @@ router.use(corsMiddleware);
 // User registration (Admin)
 router.post('/register-user', AuthController.registerUser);
 
+router.post('/register-ofline-user', AuthController.registerOfflineUser);
+
 // Member registration
 // router.post('/register-member', AuthController.registerMember);
 

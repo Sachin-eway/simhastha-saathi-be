@@ -174,6 +174,14 @@ class QR {
       throw new Error(`Failed to search QRs: ${error.message}`);
     }
   }
+
+  static async getMemberByGroupId(groupId) {
+    const [rows] = await db.execute(
+      'SELECT * FROM qr_users WHERE group_id = ?',
+      [groupId]
+    );
+    return rows[0];
+  }
 }
 
 module.exports = QR;

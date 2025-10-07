@@ -159,6 +159,15 @@ module.exports = {
           }
         }
       },
+      RegisterOfflineUserRequest: {
+        type: 'object',
+        required: ['groupId'],
+        properties: { groupId: { type: 'string', example: 'GR0001' } }
+      },
+      RegisterOfflineUserResponse: {
+        type: 'object',
+        properties: { success: { type: 'boolean', example: true }, message: { type: 'string', example: 'Member fetched successfully' }, data: { type: 'object', properties: { id: { type: 'integer', example: 201 }, full_name: { type: 'string', example: 'Member Name' }, mobile_number: { type: 'string', example: '9999999999' } } } }
+      },
       // Location schemas
       UpdateLocationRequest: {
         type: 'object',
@@ -329,7 +338,16 @@ module.exports = {
         responses: { '200': { description: 'Users', content: { 'application/json': { schema: { $ref: '#/components/schemas/GetGroupUsersResponse' } } } } }
       }
     },
-    // Location routes
+    '/api/auth/register-offline-user': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Register offline user',
+        security: [{ bearerAuth: [] }],
+        requestBody: { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterOfflineUserRequest' } } } },
+        responses: { '200': { description: 'Registered', content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterOfflineUserResponse' } } } } }
+      }
+    },
+      // Location routes
     '/api/location/update': {
       post: {
         tags: ['Location'],

@@ -3,6 +3,7 @@ const Member = require('../models/Member');
 const Group = require('../models/Group');
 const OTPService = require('../utils/otpService');
 const JWTService = require('../utils/jwtService');
+const QR = require('../models/QR');
 
 class AuthController {
   // User registration (Admin)
@@ -46,55 +47,16 @@ class AuthController {
     }
   }
 
-  // Member registration
-  // static async registerMember(req, res) {
-  //   try {
-  //     const { fullName, mobileNumber, age, groupId } = req.body;
-
-  //     // Check if group exists
-  //     const group = await Group.findById(groupId);
-  //     if (!group) {
-  //       return res.status(400).json({
-  //         success: false,
-  //         message: 'Invalid group ID'
-  //       });
-  //     }
-
-  //     // Check if member already exists
-  //     const existingMember = await Member.findByMobile(mobileNumber);
-  //     if (existingMember) {
-  //       return res.status(400).json({
-  //         success: false,
-  //         message: 'Member already exists with this mobile number'
-  //       });
-  //     }
-
-  //     // Create member
-  //     const memberId = await Member.create({
-  //       fullName,
-  //       mobileNumber,
-  //       age,
-  //       groupId
-  //     });
-
-  //     // Generate and send OTP
-  //     const otp = OTPService.generateOTP();
-  //     await Member.updateOtp(memberId, otp);
-  //     await OTPService.sendOTP(mobileNumber, otp);
-
-  //     return res.json({
-  //       success: true,
-  //       message: 'Member registered successfully. OTP sent to mobile number.',
-  //       data: { memberId, groupId }
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).json({
-  //       success: false,
-  //       message: 'Member registration failed',
-  //       error: error.message
-  //     });
-  //   }
-  // }
+ 
+  static async registerOfflineUser(req, res) {
+    try {
+      const groupId = req.user.groupId;
+      const member = await QR.getMemberByGroupId(groupId);
+      return res.json({ success: true, message: 'Member fetched successfully', data: member });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: 'Registration failed', error: error.message });
+    }
+  }
 
   // User login
   static async loginUser(req, res) {
