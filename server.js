@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
+const db = require('../config/database');
 require('dotenv').config();
 
 // Import middleware
@@ -29,6 +30,8 @@ app.use(express.static('.')); // Serve static files from current directory
 app.use(requestLogger); // Request logging
 app.use(corsMiddleware); // CORS middleware
 app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.set('view engine', 'ejs'); // or another template engine like pug, handlebars
+app.set('views', './views'); // folder with HTML templates
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
@@ -39,6 +42,26 @@ app.use('/api/sosAlert', require('./routes/sosAlertRoutes'));
 // Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Simhastha Saathi API is running' });
+});
+app.get('/member-details/:id', async (req, res) => {
+  const memberId = req.params.id;
+
+  try {
+    // Get member details from db by id
+    const [rows] = await db.execute('SELECT * FROM qr_users WHERE id = ?', [memberId]);
+
+    if (rows.length === 0) {
+      return res.status(404).send('Member not found');
+    }
+
+    const member = rows[0];
+
+    // Render a template with member data
+    res.render('member-details', { member });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Database error');
+  }
 });
 
 // Socket.IO connection handling
