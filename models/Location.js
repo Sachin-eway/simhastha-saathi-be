@@ -35,7 +35,7 @@ class Location {
 
   static async getGroupLocations(groupId) {
     const [rows] = await db.execute(
-      `SELECT u.id, u.full_name, l.latitude, l.longitude, l.created_at 
+      `SELECT u.id, u.full_name , u.isAdmin, l.latitude, l.longitude, l.created_at 
        FROM users u 
        LEFT JOIN locations l ON u.id = l.user_id 
        WHERE u.group_id = ? AND l.id IS NOT NULL
